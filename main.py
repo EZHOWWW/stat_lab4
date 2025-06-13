@@ -225,3 +225,38 @@ for g1_name, g2_name in pairs:
     results = pooled_t_test(data1, data2, alpha=alpha_level)
     print(f"  Comparing {g1_name} and {g2_name}:")
     print(f"    t-statistic: {results['t-statistic']:.3f}, P-value: {results['P-value']:.3f}, Reject H0: {results['Reject H0']}")
+# %%
+# --- 3.a Perform One-Way ANOVA and F-test ---
+alpha_level = 0.05 # Significance level
+
+print("\n--- Performing One-Way ANOVA ---")
+
+# ANOVA for Sample 1
+f_statistic_s1, p_value_s1 = stats.f_oneway(
+    sample1_data['Group 1'],
+    sample1_data['Group 2'],
+    sample1_data['Group 3']
+)
+
+print("\nResults for Sample 1 (Close Means):")
+print(f"  F-statistic: {f_statistic_s1:.3f}")
+print(f"  P-value: {p_value_s1:.3f}")
+if p_value_s1 < alpha_level:
+    print(f"  Reject H0: Yes (P-value < {alpha_level}). At least one group mean is significantly different.")
+else:
+    print(f"  Reject H0: No (P-value >= {alpha_level}). No significant difference found between group means.")
+
+# ANOVA for Sample 2
+f_statistic_s2, p_value_s2 = stats.f_oneway(
+    sample2_data['Group 1'],
+    sample2_data['Group 2'],
+    sample2_data['Group 3']
+)
+
+print("\nResults for Sample 2 (Different Means):")
+print(f"  F-statistic: {f_statistic_s2:.3f}")
+print(f"  P-value: {p_value_s2:.3f}")
+if p_value_s2 < alpha_level:
+    print(f"  Reject H0: Yes (P-value < {alpha_level}). At least one group mean is significantly different.")
+else:
+    print(f"  Reject H0: No (P-value >= {alpha_level}). No significant difference found between group means.")
