@@ -226,6 +226,98 @@ for g1_name, g2_name in pairs:
     print(f"  Comparing {g1_name} and {g2_name}:")
     print(f"    t-statistic: {results['t-statistic']:.3f}, P-value: {results['P-value']:.3f}, Reject H0: {results['Reject H0']}")
 # %%
+def calculate_one_way_anova_f_statistic(*groups):
+    """
+    Calculates the F-statistic for a one-way ANOVA.
+
+    Args:
+        *groups: Variable number of numpy arrays, each representing a group's data.
+
+    Returns:
+        float: The calculated F-statistic.
+    """
+    k = len(groups) # Number of groups
+    n_values = [len(group) for group in groups] # Number of samples in each group
+    N = sum(n_values) # Total number of observations
+
+    # Calculate overall mean
+    all_data = np.concatenate(groups)
+    overall_mean = np.mean(all_data)
+
+    # Calculate Sum of Squares Between (SS_between)
+    ss_between = 0
+    for i in range(k):
+        group_mean = np.mean(groups[i])
+        ss_between += n_values[i] * (group_mean - overall_mean)**2
+
+    # Calculate Sum of Squares Within (SS_within)
+    ss_within = 0
+    for i in range(k):
+        group_mean = np.mean(groups[i])
+        ss_within += np.sum((groups[i] - group_mean)**2)
+
+    # Calculate degrees of freedom
+    df_between = k - 1
+    df_within = N - k
+
+    # Calculate Mean Squares
+    ms_between = ss_between / df_between
+    ms_within = ss_within / df_within
+
+    # Calculate F-statistic
+    f_statistic = ms_between / ms_within
+
+    return f_statistic, df_between, df_within
+# %%
+
+
+alpha_level = 0.05
+
+print("\n--- Custom F-statistic Calculation vs. SciPy's f_oneway ---")
+
+# Sample 1
+f_custom_s1, df_between_s1, df_within_s1 = calculate_one_way_anova_f_statistic(
+    sample1_data['Group 1'],
+    sample1_data['Group 2'],
+    sample1_data['Group 3']
+)
+f_scipy_s1, p_scipy_s1 = stats.f_oneway(
+    sample1_data['Group 1'],
+    sample1_data['Group 2'],
+    sample1_data['Group 3']
+)
+
+print("\nSample 1 (Close Means):")
+print(f"  Custom F-statistic: {f_custom_s1:.3f}")
+print(f"  SciPy F-statistic:  {f_scipy_s1:.3f}")
+print(f"  SciPy P-value:      {p_scipy_s1:.3f}")
+if p_scipy_s1 < alpha_level:
+    print(f"  SciPy Reject H0: Yes (P-value < {alpha_level})")
+else:
+    print(f"  SciPy Reject H0: No (P-value >= {alpha_level})")
+
+
+# Sample 2
+f_custom_s2, df_between_s2, df_within_s2 = calculate_one_way_anova_f_statistic(
+    sample2_data['Group 1'],
+    sample2_data['Group 2'],
+    sample2_data['Group 3']
+)
+f_scipy_s2, p_scipy_s2 = stats.f_oneway(
+    sample2_data['Group 1'],
+    sample2_data['Group 2'],
+    sample2_data['Group 3']
+)
+
+print("\nSample 2 (Different Means):")
+print(f"  Custom F-statistic: {f_custom_s2:.3f}")
+print(f"  SciPy F-statistic:  {f_scipy_s2:.3f}")
+print(f"  SciPy P-value:      {p_scipy_s2:.3f}")
+if p_scipy_s2 < alpha_level:
+    print(f"  SciPy Reject H0: Yes (P-value < {alpha_level})")
+else:
+    print(f"  SciPy Reject H0: No (P-value >= {alpha_level})")
+# %%
 # --- 3.a Perform One-Way ANOVA and F-test ---
 alpha_level = 0.05 # Significance level
 
